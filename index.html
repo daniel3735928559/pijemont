@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Demo</title>
+    <link rel="stylesheet" type="text/css" href="pijemont.css">
+    <script type="text/javascript" src="pijemont.js"></script>
+  </head>
+  <body>
+    <div id="demo">
+      Hello
+    </div>
+    <script>
+      var p = new Pijemont(document.getElementById("demo"),
+      {
+      "blah":{"type":"dict","group":"g0","description":"blah","values":{"type":"string"}},
+      "n":{"type":"num","group":"g0","description":"number of things"},
+      "debrief":{"type":"string","group":"g1","description":"Text to display when things happen"},
+      "names":{"type":"list","group":"g1","description":"Names","values":
+      {"type":"list","description":"asda","values":{"type":"string","values":["Alice","Bob"]}}
+      }
+      },
+      "form");
+    </script>
+</body></html>
