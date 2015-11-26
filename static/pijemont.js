@@ -119,6 +119,34 @@ Pijemont.widgets = {
 	    
 	    return new_node;
 	}
+    },
+    "oneof":{
+	"create":function(name, dict, prefix, instance){
+	    var new_node = document.createElement("div");
+	    new_node.setAttribute("class","oneof_element");
+	    var elt_name = prefix + '-'+name;
+	    var inputs = Pijemont.make_node("div",{"class":"oneof_inputs"},"");
+	    new_node.appendChild(inputs);
+	    for(var v in dict.values){
+		var new_input = Pijemont.make_node("div",{"class":"oneof_input"},"");
+		var new_radio_button = Pijemont.make_node("input",{"type":"radio","name":elt_name,"value":v},"");
+		var f = function(v,div){
+		    new_radio_button.onclick = function(){
+			console.log("VVVV",v);
+			for(var n = inputs.firstChild; n; n = n.nextSibling){
+			    n.style.backgroundColor="gray";
+			}
+			div.style.backgroundColor="white";
+		    }
+		}(v,new_input)
+		new_input.appendChild(new_radio_button);
+		var d = {};
+		d[v] = dict.values[v];
+		instance.append(new_input,d,elt_name);
+		inputs.appendChild(new_input);
+	    }
+	    return new_node;
+	}
     }
 };
 
