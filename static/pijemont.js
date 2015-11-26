@@ -138,13 +138,18 @@ Pijemont.widgets = {
 			}
 			div.style.backgroundColor="white";
 		    }
-		}(v,new_input)
+		}(v,new_input);
 		new_input.appendChild(new_radio_button);
 		var d = {};
 		d[v] = dict.values[v];
 		instance.append(new_input,d,elt_name);
 		inputs.appendChild(new_input);
 	    }
+	    for(var n = inputs.firstChild; n; n = n.nextSibling){
+		n.style.backgroundColor="gray";
+	    }
+	    inputs.firstChild.getElementsByTagName("input")[0].checked = true;
+	    inputs.firstChild.style.backgroundColor="white";
 	    return new_node;
 	}
     }
