@@ -13,17 +13,16 @@ var Pijemont = function(container_form, api_dict, name, target){
 	}
 	var data = self.process(self.api, self.name, self.process);
 	console.log(data);
-	alert(data);
-	// var FD = new FormData(self.root);
-	// var XHR = new XMLHttpRequest();
-	// XHR.addEventListener("load", function(event) {
-	//     alert(event.target.responseText);
-	// });
-	// XHR.addEventListener("error", function(event) {
-	//     alert('Oops! Something went wrong.');
-	// });
-	// XHR.open("POST", self.target);
-	// XHR.send(JSON.stringify(data));
+	alert(JSON.stringify(data));
+	var XHR = new XMLHttpRequest();
+	XHR.addEventListener("load", function(event) {
+	    alert(event.target.responseText);
+	});
+	XHR.addEventListener("error", function(event) {
+	    alert('Oops! Something went wrong.');
+	});
+	XHR.open("POST", self.target);
+	XHR.send(JSON.stringify(data));
     }
     
     var XHR = new XMLHttpRequest();
@@ -70,7 +69,7 @@ Pijemont.widgets = {
 	    return new_node;
 	},
 	"process":function(dict, prefix, process){
-	    return document.getElementById(prefix).value;
+	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
 	}
     },
     
@@ -82,7 +81,7 @@ Pijemont.widgets = {
 	    return new_node;
 	},
 	"process":function(dict, prefix, process){
-	    return document.getElementById(prefix).value;
+	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
 	}
     },
     
@@ -106,7 +105,7 @@ Pijemont.widgets = {
 	    return new_node;
 	},
 	"process":function(dict, prefix, process){
-	    return document.getElementById(prefix).value;
+	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
 	}
     },
     
@@ -116,7 +115,7 @@ Pijemont.widgets = {
 	    new_node.setAttribute("class","list_element nonterminal");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
-	    var add_node = Pijemont.make_node("div",{"class":"add"},"+");
+	    var add_node = Pijemont.make_node ("div",{"class":"add"},"+");
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
@@ -136,14 +135,26 @@ Pijemont.widgets = {
 	"process":function(dict, prefix, process){
 	    console.log("LL",dict,prefix, process);
 	    var x = 1;
-	    var answer = []
-	    while(document.getElementById(prefix+'-'+x)){
+	    var answer = [];
+	    var OK = true;
+	    while(OK){
 		var d = {}
-		d[x] = dict.values
-		answer.push(process(d,prefix,process));
+		d[x] = dict.values;
+		var to_push = process(d,prefix,process);
+		for(var idx in to_push){
+		    console.log("TP",to_push,idx,to_push[idx] == null);
+		    if(to_push[idx] == null){
+			console.log("broke");
+			OK = false;
+			break;
+		    }
+		    answer.push(to_push[idx]);
+		}
 		x++;
+		if(x > 10) break;
 	    }
-	    return answer;
+	    console.log("LLret",JSON.stringify(answer));
+	    return answer.length > 0 ? answer : null;
 	}
     },
     
@@ -187,7 +198,7 @@ Pijemont.widgets = {
 		console.log(x);
 		var d = {}
 		d[x] = dict.values;
-		answer[document.getElementById(prefix+'-key-'+x).value] = process(d, prefix+'-value',process);
+		answer[document.getElementById(prefix+'-key-'+x).value] = process(d, prefix+'-value',process)[x];
 		x++;
 	    }
 	    return answer;
@@ -210,8 +221,12 @@ Pijemont.widgets = {
 			console.log("V",v);
 			for(var n = inputs.firstChild; n; n = n.nextSibling){
 			    n.style.backgroundColor="#ccc";
+			    var l = n.getElementsByClassName("oneof_val")[0].getElementsByTagName("input");
+			    for(var i = 0; i < l.length; i++) l[i].disabled=true;
 			}
 			div.style.backgroundColor="white";
+			var l = div.getElementsByClassName("oneof_val")[0].getElementsByTagName("input");
+			for(var i = 0; i < l.length; i++){ l[i].disabled=false;}
 		    }
 		}(v,new_input);
 		new_input.appendChild(new_radio_button);
@@ -230,8 +245,11 @@ Pijemont.widgets = {
 	},
 	"process":function(dict, prefix, process){
 	    for(var v in dict.values)
-		if(document.getElementById(prefix+'-oneof-'+v).checked)
-		    return process(dict[name].values[v],prefix+'-'+v,process);
+		if(document.getElementById(prefix+'-oneof-'+v).checked){
+		    var d = {};
+		    d[v] = dict.values[v];
+		    return process(d,prefix,process);
+		}
 	}
     }
     
