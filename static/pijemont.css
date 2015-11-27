@@ -1,3 +1,15 @@
 div.list_element{
     border:1px solid black;
 }
+
+div.num_label{
+    width:10%;
+}
+
+input[type="text"]{
+    width:200px;
+}
+
+input[type="number"]{
+    width:70px;
+}
