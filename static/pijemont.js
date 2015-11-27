@@ -43,16 +43,27 @@ Pijemont.prototype.process = function(dict,prefix){
 	}
 	else if(dict[name].type == "list"){
 	    var x = 1;
+	    var answer = []
 	    while(this.root.getElementById(p+'-'+x)){
-		
+		answer.push(this.process(dict[name].values,p+'-'+x));
 		x++;
 	    }
 	}
+	else if(dict[name].type == "dict"){
+	    var x = 1;
+	    var answer ={}
+	    while(this.root.getElementById(p+'-key-'+x)){
+		answer[this.root.getElementById(p+'-key-'+x).value] = this.process(dict[name].values,p+'-value-'+x));
+		x++;
+	    }
+	}
+	else if(dict[name].type == "oneof"){
+	    for(var v in dict[name].values){
+		if(this.root.getElementById(p+'-oneof-'+v).checked)
+		    return this.process(dict[name].values[v],p+'-'+v));
+	    }
+	}
     }
-}
-
-Pijemont.prototype.find_element = function(){
-    
 }
 
 Pijemont.prototype.append = function(root, dict, prefix){
@@ -63,6 +74,7 @@ Pijemont.prototype.append = function(root, dict, prefix){
 }
 
 Pijemont.widgets = {
+
     "num":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
@@ -72,6 +84,7 @@ Pijemont.widgets = {
 	},
 	"terminal":true
     },
+    
     "multiline":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
@@ -81,6 +94,7 @@ Pijemont.widgets = {
 	},
 	"terminal":true
     },
+    
     "string":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
@@ -102,6 +116,7 @@ Pijemont.widgets = {
 	},
 	"terminal":true
     },
+    
     "list":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
@@ -127,6 +142,7 @@ Pijemont.widgets = {
 	},
 	"terminal":false
     },
+    
     "dict":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
@@ -161,6 +177,7 @@ Pijemont.widgets = {
 	},
 	"terminal":false
     },
+    
     "oneof":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
@@ -171,7 +188,7 @@ Pijemont.widgets = {
 	    for(var v in dict.values){
 		var new_input = Pijemont.make_node("div",{"class":"oneof_input nonterminal"},"");
 		var new_val = Pijemont.make_node("div",{"class":"oneof_val"},"");
-		var new_radio_button = Pijemont.make_node("input",{"type":"radio","name":elt_name,"value":v},"");
+		var new_radio_button = Pijemont.make_node("input",{"type":"radio","name":elt_name,"id":elt_name+'-oneof-'+v,"value":v},"");
 		var f = function(v,div){
 		    new_radio_button.onclick = function(){
 			console.log("V",v);
@@ -197,6 +214,7 @@ Pijemont.widgets = {
 	},
 	"terminal":false
     }
+    
 };
 
 Pijemont.make_node = function(name, attrs, value){
