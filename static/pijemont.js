@@ -42,7 +42,7 @@ Pijemont.prototype.append = function(root, dict, prefix){
 Pijemont.widgets = {
     "num":{
 	"create":function(name, dict, prefix, instance){
-	    var new_node = Pijemont.make_node("div",{"class":"form-group"},"");
+	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><input id="'+elt_name+'" name="'+elt_name+'" type="number" class="form-control" />';
 	    return new_node;
@@ -50,7 +50,7 @@ Pijemont.widgets = {
     },
     "string":{
 	"create":function(name, dict, prefix, instance){
-	    var new_node = Pijemont.make_node("div",{"class":"form-group"},"");
+	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    console.log(name);
 	    if("values" in dict){
@@ -71,10 +71,10 @@ Pijemont.widgets = {
     "list":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
-	    new_node.setAttribute("class","list_element");
+	    new_node.setAttribute("class","list_element nonterminal");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
-	    var add_node = Pijemont.make_node("div",{"class":"list_add"},"+");
+	    var add_node = Pijemont.make_node("div",{"class":"add"},"+");
 	    new_node.appendChild(Pijemont.make_node("",{},name+": "));
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
@@ -95,10 +95,10 @@ Pijemont.widgets = {
     "dict":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
-	    new_node.setAttribute("class","dict_element");
+	    new_node.setAttribute("class","dict_element nonterminal");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
-	    var add_node = Pijemont.make_node("div",{"class":"dict_add"},"+");
+	    var add_node = Pijemont.make_node("div",{"class":"add"},"+");
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
 	    var append = function(){
@@ -123,7 +123,7 @@ Pijemont.widgets = {
     "oneof":{
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
-	    new_node.setAttribute("class","oneof_element");
+	    new_node.setAttribute("class","oneof_element nonterminal");
 	    var elt_name = prefix + '-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"oneof_inputs"},"");
 	    new_node.appendChild(inputs);

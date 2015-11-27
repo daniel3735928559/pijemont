@@ -1,9 +1,16 @@
-div.list_element{
+div.nonterminal{
+    /* background-color:#3cc; */
+    margin:20px;
     border:1px solid black;
+    border-radius:10px;
+    padding:20px;
 }
 
-div.num_label{
-    width:10%;
+div.terminal{
+    margin:20px;
+    border:1px solid black;
+    border-radius:10px;
+    padding:20px;
 }
 
 input[type="text"]{
@@ -12,4 +19,15 @@ input[type="text"]{
 
 input[type="number"]{
     width:70px;
+}
+
+div.add{
+    cursor:pointer;
+    width:50px;
+    height:50px;
+    border-radius:25px;
+    font-size:30px;
+    text-align:center;
+    border:3px solid black;
+    background-color:#fa3;
 }
