@@ -6,19 +6,24 @@ var Pijemont = function(container_form, api_dict, name, target){
     
     this.root.onsubmit = function(e){
 	console.log(self.root);
-	if(!self.api) return;
-	var data = self.process(self.api, self.name);
-	// var FD = new FormData(self.root);
-	var XHR = new XMLHttpRequest();
-	XHR.addEventListener("load", function(event) {
-	    alert(event.target.responseText);
-	});
-	XHR.addEventListener("error", function(event) {
-	    alert('Oops! Something went wrong.');
-	});
-	XHR.open("POST", self.target);
-	XHR.send(JSON.stringify(data));
 	e.preventDefault();
+	console.log(self.api);
+	if(!self.api){
+	    return;
+	}
+	var data = self.process(self.api, self.name, self.process);
+	console.log(data);
+	alert(data);
+	// var FD = new FormData(self.root);
+	// var XHR = new XMLHttpRequest();
+	// XHR.addEventListener("load", function(event) {
+	//     alert(event.target.responseText);
+	// });
+	// XHR.addEventListener("error", function(event) {
+	//     alert('Oops! Something went wrong.');
+	// });
+	// XHR.open("POST", self.target);
+	// XHR.send(JSON.stringify(data));
     }
     
     var XHR = new XMLHttpRequest();
@@ -35,35 +40,17 @@ var Pijemont = function(container_form, api_dict, name, target){
     XHR.send();
 }
 
-Pijemont.prototype.process = function(dict,prefix){
+Pijemont.prototype.process = function(dict,prefix, process){
+    var answer = {}
+    console.log("D",JSON.stringify(dict));
     for(var name in dict){
 	var p = prefix+'-'+name;
-	if(Pijemont.widgets[dict[name].type].terminal){
-	    return this.root.getElementById(p).value;
-	}
-	else if(dict[name].type == "list"){
-	    var x = 1;
-	    var answer = []
-	    while(this.root.getElementById(p+'-'+x)){
-		answer.push(this.process(dict[name].values,p+'-'+x));
-		x++;
-	    }
-	}
-	else if(dict[name].type == "dict"){
-	    var x = 1;
-	    var answer ={}
-	    while(this.root.getElementById(p+'-key-'+x)){
-		answer[this.root.getElementById(p+'-key-'+x).value] = this.process(dict[name].values,p+'-value-'+x));
-		x++;
-	    }
-	}
-	else if(dict[name].type == "oneof"){
-	    for(var v in dict[name].values){
-		if(this.root.getElementById(p+'-oneof-'+v).checked)
-		    return this.process(dict[name].values[v],p+'-'+v));
-	    }
-	}
+	console.log("PRE",p);
+	var widget = Pijemont.widgets[dict[name].type];
+	answer[name] = widget.process(dict[name], p, process);
+	console.log("AA",JSON.stringify(answer));
     }
+    return answer;
 }
 
 Pijemont.prototype.append = function(root, dict, prefix){
@@ -82,7 +69,9 @@ Pijemont.widgets = {
 	    new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><input id="'+elt_name+'" name="'+elt_name+'" type="number" class="form-control" />';
 	    return new_node;
 	},
-	"terminal":true
+	"process":function(dict, prefix, process){
+	    return document.getElementById(prefix).value;
+	}
     },
     
     "multiline":{
@@ -92,7 +81,9 @@ Pijemont.widgets = {
 	    new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><textarea id="'+elt_name+'" name="'+elt_name+'" type="number" class="form-control form_answer" />';
 	    return new_node;
 	},
-	"terminal":true
+	"process":function(dict, prefix, process){
+	    return document.getElementById(prefix).value;
+	}
     },
     
     "string":{
@@ -114,7 +105,9 @@ Pijemont.widgets = {
 	    }
 	    return new_node;
 	},
-	"terminal":true
+	"process":function(dict, prefix, process){
+	    return document.getElementById(prefix).value;
+	}
     },
     
     "list":{
@@ -140,7 +133,18 @@ Pijemont.widgets = {
 	    add_node.onclick = append;
 	    return new_node;
 	},
-	"terminal":false
+	"process":function(dict, prefix, process){
+	    console.log("LL",dict,prefix, process);
+	    var x = 1;
+	    var answer = []
+	    while(document.getElementById(prefix+'-'+x)){
+		var d = {}
+		d[x] = dict.values
+		answer.push(process(d,prefix,process));
+		x++;
+	    }
+	    return answer;
+	}
     },
     
     "dict":{
@@ -175,7 +179,19 @@ Pijemont.widgets = {
 	    
 	    return new_node;
 	},
-	"terminal":false
+	"process":function(dict, prefix, process){
+	    console.log("DD",dict, prefix);
+	    var x = 1;
+	    var answer = {}
+	    while(document.getElementById(prefix+'-key-'+x)){
+		console.log(x);
+		var d = {}
+		d[x] = dict.values;
+		answer[document.getElementById(prefix+'-key-'+x).value] = process(d, prefix+'-value',process);
+		x++;
+	    }
+	    return answer;
+	}
     },
     
     "oneof":{
@@ -212,7 +228,11 @@ Pijemont.widgets = {
 	    inputs.firstChild.style.backgroundColor="white";
 	    return new_node;
 	},
-	"terminal":false
+	"process":function(dict, prefix, process){
+	    for(var v in dict.values)
+		if(document.getElementById(prefix+'-oneof-'+v).checked)
+		    return process(dict[name].values[v],prefix+'-'+v,process);
+	}
     }
     
 };
