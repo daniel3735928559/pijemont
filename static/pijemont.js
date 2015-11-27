@@ -6,7 +6,9 @@ var Pijemont = function(container_form, api_dict, name, target){
     
     this.root.onsubmit = function(e){
 	console.log(self.root);
-	var FD = new FormData(self.root);
+	if(!self.api) return;
+	var data = self.process(self.api, self.name);
+	// var FD = new FormData(self.root);
 	var XHR = new XMLHttpRequest();
 	XHR.addEventListener("load", function(event) {
 	    alert(event.target.responseText);
@@ -15,14 +17,15 @@ var Pijemont = function(container_form, api_dict, name, target){
 	    alert('Oops! Something went wrong.');
 	});
 	XHR.open("POST", self.target);
-	XHR.send(FD);
+	XHR.send(JSON.stringify(data));
 	e.preventDefault();
     }
     
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
 	alert(event.target.responseText);
-	self.append(self.root, JSON.parse(event.target.responseText), self.name);
+	self.api = JSON.parse(event.target.responseText);
+	self.append(self.root, self.api, self.name);
 	
     });
     XHR.addEventListener("error", function(event) {
@@ -30,6 +33,26 @@ var Pijemont = function(container_form, api_dict, name, target){
     });
     XHR.open("GET", api_dict);
     XHR.send();
+}
+
+Pijemont.prototype.process = function(dict,prefix){
+    for(var name in dict){
+	var p = prefix+'-'+name;
+	if(Pijemont.widgets[dict[name].type].terminal){
+	    return this.root.getElementById(p).value;
+	}
+	else if(dict[name].type == "list"){
+	    var x = 1;
+	    while(this.root.getElementById(p+'-'+x)){
+		
+		x++;
+	    }
+	}
+    }
+}
+
+Pijemont.prototype.find_element = function(){
+    
 }
 
 Pijemont.prototype.append = function(root, dict, prefix){
@@ -46,7 +69,17 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><input id="'+elt_name+'" name="'+elt_name+'" type="number" class="form-control" />';
 	    return new_node;
-	}
+	},
+	"terminal":true
+    },
+    "multiline":{
+	"create":function(name, dict, prefix, instance){
+	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
+	    var elt_name = prefix+'-'+name;
+	    new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><textarea id="'+elt_name+'" name="'+elt_name+'" type="number" class="form-control form_answer" />';
+	    return new_node;
+	},
+	"terminal":true
     },
     "string":{
 	"create":function(name, dict, prefix, instance){
@@ -66,7 +99,8 @@ Pijemont.widgets = {
 		new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><input id="'+elt_name+'" name="'+elt_name+'" class="form-control" type="text"/>';
 	    }
 	    return new_node;
-	}
+	},
+	"terminal":true
     },
     "list":{
 	"create":function(name, dict, prefix, instance){
@@ -75,7 +109,7 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
 	    var add_node = Pijemont.make_node("div",{"class":"add"},"+");
-	    new_node.appendChild(Pijemont.make_node("",{},name+": "));
+	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
 	    var append = function(){
@@ -90,7 +124,8 @@ Pijemont.widgets = {
 	    append();
 	    add_node.onclick = append;
 	    return new_node;
-	}
+	},
+	"terminal":false
     },
     "dict":{
 	"create":function(name, dict, prefix, instance){
@@ -99,6 +134,7 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
 	    var add_node = Pijemont.make_node("div",{"class":"add"},"+");
+	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
 	    var append = function(){
@@ -106,11 +142,15 @@ Pijemont.widgets = {
 		var new_input = Pijemont.make_node("div",{"class":"dict_input"},"");
 		var idx = inputs.childNodes.length+1+"";
 		var new_name = elt_name+'-key-'+idx;
-		new_input.appendChild(Pijemont.make_node("label", {"class":"dict_key_label","for":new_name},"key-"+idx+": "));
-		new_input.appendChild(Pijemont.make_node("input",{"id":new_name,"name":new_name,"type":"text","class":"form-control"},""));
+		var key_input = Pijemont.make_node("div",{"class":"key_input nonterminal"},"");
+		key_input.appendChild(Pijemont.make_node("label", {"class":"dict_key_label","for":new_name},"key-"+idx+": "));
+		key_input.appendChild(Pijemont.make_node("input",{"id":new_name,"name":new_name,"type":"text","class":"form-control"},""));
+		var val_input = Pijemont.make_node("div",{"class":"val_input"},"");
 		var d = {};
 		d["value-"+idx] = dict.values;
-		instance.append(new_input,d,elt_name);
+		instance.append(val_input,d,elt_name);
+		new_input.appendChild(key_input);
+		new_input.appendChild(val_input);
 		inputs.appendChild(new_input);
 	    }
 
@@ -118,7 +158,8 @@ Pijemont.widgets = {
 	    add_node.onclick = append;
 	    
 	    return new_node;
-	}
+	},
+	"terminal":false
     },
     "oneof":{
 	"create":function(name, dict, prefix, instance){
@@ -128,30 +169,33 @@ Pijemont.widgets = {
 	    var inputs = Pijemont.make_node("div",{"class":"oneof_inputs"},"");
 	    new_node.appendChild(inputs);
 	    for(var v in dict.values){
-		var new_input = Pijemont.make_node("div",{"class":"oneof_input"},"");
+		var new_input = Pijemont.make_node("div",{"class":"oneof_input nonterminal"},"");
+		var new_val = Pijemont.make_node("div",{"class":"oneof_val"},"");
 		var new_radio_button = Pijemont.make_node("input",{"type":"radio","name":elt_name,"value":v},"");
 		var f = function(v,div){
 		    new_radio_button.onclick = function(){
 			console.log("V",v);
 			for(var n = inputs.firstChild; n; n = n.nextSibling){
-			    n.style.backgroundColor="gray";
+			    n.style.backgroundColor="#ccc";
 			}
 			div.style.backgroundColor="white";
 		    }
 		}(v,new_input);
 		new_input.appendChild(new_radio_button);
+		new_input.appendChild(new_val);
 		var d = {};
 		d[v] = dict.values[v];
-		instance.append(new_input,d,elt_name);
+		instance.append(new_val,d,elt_name);
 		inputs.appendChild(new_input);
 	    }
 	    for(var n = inputs.firstChild; n; n = n.nextSibling){
-		n.style.backgroundColor="gray";
+		n.style.backgroundColor="#ccc";
 	    }
 	    inputs.firstChild.getElementsByTagName("input")[0].checked = true;
 	    inputs.firstChild.style.backgroundColor="white";
 	    return new_node;
-	}
+	},
+	"terminal":false
     }
 };
 
