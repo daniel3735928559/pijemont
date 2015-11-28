@@ -16,7 +16,7 @@ api = {
         }
     },
     "blah":{"type":"dict","description":"blah","values":
-            {"type":"list","values":{"type":"string"}}},
+            {"thing1":{"type":"list","values":{"type":"string"}},"thing2":{"type":"num"}}},
     "debrief":{"type":"multiline","description":"Text to display when things happen"},
     "names":{
         "type":"list","description":"Names","values":{
