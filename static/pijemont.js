@@ -4,10 +4,6 @@ var Pijemont = function(container_form, api_dict, name, target){
     this.name = name;
     var self = this;
 
-    this.root.oninput = function(e){
-	console.log("INPUT",e.target.getAttribute("id"));
-    }
-    
     this.root.onsubmit = function(e){
 	console.log(self.root);
 	e.preventDefault();
@@ -109,7 +105,6 @@ Pijemont.widgets = {
 		var new_input = Pijemont.make_node("select",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
 		new_node.appendChild(new_label);
 		new_node.appendChild(new_input);
-		new_node.innerHTML = '<label for="'+elt_name+'">'+name+': </label><select id="'+elt_name+'" name="'+elt_name+'" class="form-control" />';
 		for(var i = 0; i < dict.values.length; i++){
 		    var new_option = Pijemont.make_node("option",{"value":dict.values[i]},dict.values[i]);
 		    new_input.appendChild(new_option);
@@ -146,7 +141,11 @@ Pijemont.widgets = {
 		d[idx] = dict.values;
 		instance.append(new_input,d,elt_name);
 		inputs.appendChild(new_input);
-		instance.edit_callback(elt_name,"list_append");
+		if(instance.listeners && instance.listeners[elt_name]){
+		    for(var i = 0; i < instance.listeners[elt_name].length; i++){
+			instance.listeners[elt_name][i]();
+		    }
+		}
 	    }
 	    append();
 	    add_node.onclick = append;
@@ -192,14 +191,49 @@ Pijemont.widgets = {
 
     "attrs":{
 	"create":function(name, dict, prefix, instance){
-	    instance.listeners = instance.listners || {};
+	    if(!instance.root.oninput){
+		instance.root.oninput= function(e){
+		    var id = e.target.getAttribute("id");
+		    console.log("INPUT",id,instance.listeners);
+		    if(id in instance.listeners){
+			for(var i = 0; i < instance.listeners[id].length; i++){
+			    instance.listeners[id][i](e.target.value);
+			}
+		    }
+		}
+	    }
+	    
 	    var new_node = Pijemont.make_node("div",{"class":"dict_element nonterminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
-	    console.log(dict);
-	    instance.append(inputs,dict.values,elt_name);
+
+	    var append = function(){
+		var idx = (inputs.childNodes.length+1)+"";
+		console.log(dict);
+		key_name = document.getElementById(dict.values.path+'-'+idx).value;
+		var new_input = Pijemont.make_node("div",{"class":"dict_inputs nonterminal"},"");
+		var new_label = Pijemont.make_node("label",{"id":elt_name+'-label-'+idx},key_name+": ")
+		new_input.appendChild(new_label);
+		inputs.appendChild(new_input);
+		console.log(dict.values.values);
+		instance.append(new_input,dict.values.values,elt_name);
+		
+		instance.listeners = instance.listeners || {};
+		var id = dict.values.path+"-"+idx;
+		instance.listeners[id] = instance.listeners[id] || [];
+		instance.listeners[id].push(function(val){
+		    console.log("LLL",val,new_label);
+		    new_label.innerHTML = val+": ";
+		});
+	    }
+	    append();
+	    var id = dict.values.path;
+	    instance.listeners[id] = instance.listeners[id] || [];
+	    instance.listeners[id].push(function(){
+		append();
+	    });
 	    
 	    return new_node;
 	},
