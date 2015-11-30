@@ -17,6 +17,7 @@ var Pijemont = function(container_form, api_dict, name, target){
 	var XHR = new XMLHttpRequest();
 	XHR.addEventListener("load", function(event) {
 	    alert(event.target.responseText);
+	    window.location = event.target.responseText;
 	});
 	XHR.addEventListener("error", function(event) {
 	    alert('Oops! Something went wrong.');
@@ -29,14 +30,20 @@ var Pijemont = function(container_form, api_dict, name, target){
     XHR.addEventListener("load", function(event) {
 	alert(event.target.responseText);
 	self.api = JSON.parse(event.target.responseText);
-	self.append(self.root, self.api, self.name);
-	
+	self.append(self.root, self.api, self.name);	
     });
     XHR.addEventListener("error", function(event) {
 	alert('Oops! Something went wrong.');
     });
-    XHR.open("GET", api_dict);
-    XHR.send();
+
+    if(typeof(api_dict)==='string'){
+	XHR.open("GET", api_dict);
+	XHR.send();
+    }
+    else {
+	self.api = api_dict;
+	self.append(self.root, self.api, self.name);
+    }
 }
 
 Pijemont.prototype.process = function(dict,prefix, process){
@@ -57,8 +64,10 @@ Pijemont.prototype.edit_callback = function(path, type){
 }
 
 Pijemont.prototype.append = function(root, dict, prefix){
+    console.log(dict);
     for(var k in dict){
     	arg = dict[k];
+	console.log(k,arg);
 	root.appendChild(Pijemont.widgets[arg.type].create(k, arg, prefix, this));
     }
 }
@@ -70,13 +79,13 @@ Pijemont.widgets = {
 	    var new_node = Pijemont.make_node("div",{"class":"form-group terminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
-	    var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"number","class":"form-control"},"");
+	    var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
 	    new_node.appendChild(new_label);
 	    new_node.appendChild(new_input);
 	    return new_node;
 	},
 	"process":function(dict, prefix, process){
-	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
+	    return document.getElementById(prefix) ? parseFloat(document.getElementById(prefix).value) : null;
 	}
     },
     
