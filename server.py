@@ -6,30 +6,69 @@ api = {
     # "targets":{
     #     "type":"oneof","values":{
     #         "n":{
-    #             "type":"num","description":"number of things"
+    #             "type":"num",
+    #             "description":"number of things"
     #         },
+            
     #         "target_set":{
-    #             "type":"list","description":"number of things","values":{
-    #                 "type":"string","description":"a text"
+    #             "type":"list",
+    #             "description":"number of things",
+    #             "values":{
+    #                 "type":"string",
+    #                 "description":"a text"
     #             }
     #         }
     #     }
     # },
-    # "blah":{"type":"dict","description":"blah","values":
-    #         {"thing1":{"type":"list","values":{"type":"string"}},"thing2":{"type":"num"}}},
-    # "debrief":{"type":"multiline","description":"Text to display when things happen"},
-    # "names":{
-    #     "type":"list","description":"Names","values":{
-    #         "type":"list","description":"asda","values":{
-    #             "type":"string","values":["Alice","Bob"]
-    #         }
-    #     }
-    # }
-    "algorithms":{
-        "type":"list","values":{"type":"string","values":["Alg A","Alg B","Alg C","Algae"]}
+
+    # "blah":{"type":"dict",
+    #         "description":"blah",
+    #         "values":{"thing1":{"type":"list",
+    #                             "values":{"type":"string"}},
+    #                   "thing2":{"type":"num"}}},
+
+    # "debrief":{"type":"multiline",
+    #            "description":"Text to display when things happen"},
+
+    "names":{
+        "type":"list",
+        "description":"Names",
+        "values":{
+            "type":"list",
+            "description":"asda",
+            "values":{
+                "type":"string",
+                "description":"I'm a string",
+                "values":["Alice","Bob"]
+            }
+        }
     },
+
+    
+    "names":{
+        "type":"list",
+        "description":"Names",
+        "values":{
+            "type":"list",
+            "description":"asda",
+            "values":{
+                "type":"string",
+                "description":"I'm a string",
+                "values":["Alice","Bob"]
+            }
+        }
+    },
+
+    "algorithms":{
+        "type":"list",
+        "description":"A list of algorithms",
+        "values":{"type":"string",
+                  "values":["Alg A","Alg B","Alg C","Algae"]}
+    },
+
     "alg_attrs":{
-        "type":"attrs","values":{"path":"the_form-algorithms","values":{"proportion":{"type":"num"}}}
+        "type":"attrs","values":{"path":"the_form-algorithms",
+                                 "values":{"proportion":{"type":"num", "description":"This is a proportion."}}}
     }
 }
 
@@ -43,4 +82,4 @@ def submit():
     return "done"
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=3797)
+    app.run(host='0.0.0.0',port=3797, debug=True)

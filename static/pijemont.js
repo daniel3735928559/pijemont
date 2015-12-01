@@ -81,6 +81,7 @@ Pijemont.widgets = {
 	    var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 	    var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
 	    new_node.appendChild(new_label);
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(new_input);
 	    return new_node;
 	},
@@ -96,6 +97,7 @@ Pijemont.widgets = {
 	    var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 	    var new_input = Pijemont.make_node("textarea",{"id":elt_name,"name":elt_name,"class":"form-control form_answer"},"");
 	    new_node.appendChild(new_label);
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(new_input);
 	    return new_node;
 	},
@@ -113,6 +115,7 @@ Pijemont.widgets = {
 		var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 		var new_input = Pijemont.make_node("select",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
 		new_node.appendChild(new_label);
+		Pijemont.appendDescription(new_node, dict)
 		new_node.appendChild(new_input);
 		for(var i = 0; i < dict.values.length; i++){
 		    var new_option = Pijemont.make_node("option",{"value":dict.values[i]},dict.values[i]);
@@ -123,6 +126,7 @@ Pijemont.widgets = {
 		var new_label = Pijemont.make_node("label",{"for":elt_name},name+": ");
 		var new_input = Pijemont.make_node("input",{"id":elt_name,"name":elt_name,"type":"text","class":"form-control"},"");
 		new_node.appendChild(new_label);
+		Pijemont.appendDescription(new_node, dict)
 		new_node.appendChild(new_input);
 	    }
 	    return new_node;
@@ -140,6 +144,7 @@ Pijemont.widgets = {
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
 	    var add_node = Pijemont.make_node ("div",{"class":"add"},"+");
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
 	    var append = function(){
@@ -160,6 +165,7 @@ Pijemont.widgets = {
 	    add_node.onclick = append;
 	    return new_node;
 	},
+
 	"process":function(dict, prefix, process){
 	    console.log("LL",dict,prefix, process);
 	    var x = 1;
@@ -185,6 +191,7 @@ Pijemont.widgets = {
 	    new_node.setAttribute("class","dict_element nonterminal");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
 	    console.log(dict);
@@ -215,6 +222,7 @@ Pijemont.widgets = {
 	    var new_node = Pijemont.make_node("div",{"class":"dict_element nonterminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    new_node.appendChild(inputs);
 
@@ -256,8 +264,9 @@ Pijemont.widgets = {
 	"create":function(name, dict, prefix, instance){
 	    var new_node = document.createElement("div");
 	    new_node.setAttribute("class","oneof_element nonterminal");
-	    var elt_name = prefix + '-'+name;
+	    var elt_name = prefix + '-' + name;
 	    var inputs = Pijemont.make_node("div",{"class":"oneof_inputs"},"");
+	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(inputs);
 	    for(var v in dict.values){
 		var new_input = Pijemont.make_node("div",{"class":"oneof_input nonterminal"},"");
@@ -297,6 +306,14 @@ Pijemont.widgets = {
     }
     
 };
+
+Pijemont.appendDescription = function(new_node, dict){
+    if(dict.description !== undefined){
+	var description = Pijemont.make_node("div", {"class":"description"}, dict.description);
+	new_node.appendChild(description);
+    }
+
+}
 
 Pijemont.make_node = function(name, attrs, value){
     if(name == "") return document.createTextNode(value);

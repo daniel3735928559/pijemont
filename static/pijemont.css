@@ -1,16 +1,23 @@
 div.nonterminal{
     /* background-color:#3cc; */
-    margin:20px;
+    margin:10px;
     border:1px solid black;
     border-radius:10px;
-    padding:20px;
+    padding:5px;
 }
 
 div.terminal{
-    margin:20px;
-    border:1px solid black;
-    border-radius:10px;
-    padding:20px;
+    margin:10px;
+    /*border:1px solid black;
+    border-radius:10px;*/
+    padding:5px;
+}
+
+div.description{
+    margin:5px;
+    font-size:small;
+    padding:5px;
+
 }
 
 input[type="number"]{
@@ -85,3 +92,4 @@ label{
     font-weight:bold;
     display:inline;
 }
+
