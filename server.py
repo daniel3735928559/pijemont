@@ -44,21 +44,6 @@ api = {
         }
     },
 
-    
-    "names":{
-        "type":"list",
-        "description":"Names",
-        "values":{
-            "type":"list",
-            "description":"asda",
-            "values":{
-                "type":"string",
-                "description":"I'm a string",
-                "values":["Alice","Bob"]
-            }
-        }
-    },
-
     "algorithms":{
         "type":"list",
         "description":"A list of algorithms",
@@ -66,10 +51,15 @@ api = {
                   "values":["Alg A","Alg B","Alg C","Algae"]}
     },
 
-    "alg_attrs":{
-        "type":"attrs","values":{"path":"the_form-algorithms",
-                                 "values":{"proportion":{"type":"num", "description":"This is a proportion."}}}
-    }
+    "ASDA":{
+        "type":"file",
+        "description":"A list of algorithms"
+    },
+
+    # "alg_attrs":{
+    #     "type":"attrs","values":{"path":"the_form-algorithms",
+    #                              "values":{"proportion":{"type":"num", "description":"This is a proportion."}}}
+    # }
 }
 
 @app.route('/doc')

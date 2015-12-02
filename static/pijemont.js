@@ -187,12 +187,11 @@ Pijemont.widgets = {
     
     "dict":{
 	"create":function(name, dict, prefix, instance){
-	    var new_node = document.createElement("div");
-	    new_node.setAttribute("class","dict_element nonterminal");
+	    var new_node = Pijemont.make_node("div",{"class":"dict_element nonterminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"dict_inputs"},"");
-	    Pijemont.appendDescription(new_node, dict)
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
+	    Pijemont.appendDescription(new_node, dict);
 	    new_node.appendChild(inputs);
 	    console.log(dict);
 	    instance.append(inputs,dict.values,elt_name);
@@ -303,7 +302,24 @@ Pijemont.widgets = {
 		    return process(d,prefix,process);
 		}
 	}
-    }
+    },
+    
+    "file":{
+	"create":function(name, dict, prefix, instance){
+	    var new_node = Pijemont.make_node("div",{"class":"file_upload terminal"},"");
+	    var elt_name = prefix+'-'+name;
+	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
+	    Pijemont.appendDescription(new_node, dict);
+	    var new_file = Pijemont.make_node("input",{"type":"file","id":elt_name},"");
+	    new_node.appendChild(new_file);
+	    return new_node;
+	},
+	"process":function(dict, prefix, process){
+	    console.log(prefix,"ASDASDAS",document.getElementById(prefix),JSON.stringify(document.getElementById(prefix).files));
+	    return document.getElementById(prefix).files[0];
+	}
+    },
+
     
 };
 
