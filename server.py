@@ -3,23 +3,23 @@ import json
 app = Flask(__name__, static_url_path='/static')
 
 api = {
-    # "targets":{
-    #     "type":"oneof","values":{
-    #         "n":{
-    #             "type":"num",
-    #             "description":"number of things"
-    #         },
+    "targets":{
+        "type":"oneof","values":{
+            "n":{
+                "type":"num",
+                "description":"number of things"
+            },
             
-    #         "target_set":{
-    #             "type":"list",
-    #             "description":"number of things",
-    #             "values":{
-    #                 "type":"string",
-    #                 "description":"a text"
-    #             }
-    #         }
-    #     }
-    # },
+            "target_set":{
+                "type":"list",
+                "description":"number of things",
+                "values":{
+                    "type":"string",
+                    "description":"a text"
+                }
+            }
+        }
+    },
 
     # "blah":{"type":"dict",
     #         "description":"blah",

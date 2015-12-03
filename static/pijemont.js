@@ -11,7 +11,7 @@ var Pijemont = function(container_form, api_dict, name, target){
 	if(!self.api){
 	    return;
 	}
-	var data = self.process(self.api, self.name, self.process);
+	var data = self.process(self.api, self.name, self);
 	console.log(data);
 	alert(JSON.stringify(data));
 	var XHR = new XMLHttpRequest();
@@ -53,7 +53,7 @@ Pijemont.prototype.process = function(dict,prefix, process){
 	var p = prefix+'-'+name;
 	console.log("PRE",p);
 	var widget = Pijemont.widgets[dict[name].type];
-	answer[name] = widget.process(dict[name], p, process);
+	answer[name] = widget.process(dict[name], p, process, this);
 	console.log("AA",JSON.stringify(answer));
     }
     return answer;
@@ -85,7 +85,7 @@ Pijemont.widgets = {
 	    new_node.appendChild(new_input);
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    return document.getElementById(prefix) ? parseFloat(document.getElementById(prefix).value) : null;
 	}
     },
@@ -101,7 +101,7 @@ Pijemont.widgets = {
 	    new_node.appendChild(new_input);
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
 	}
     },
@@ -131,7 +131,7 @@ Pijemont.widgets = {
 	    }
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    return document.getElementById(prefix) ? document.getElementById(prefix).value : null;
 	}
     },
@@ -166,15 +166,15 @@ Pijemont.widgets = {
 	    return new_node;
 	},
 
-	"process":function(dict, prefix, process){
-	    console.log("LL",dict,prefix, process);
+	"process":function(dict, prefix, instance){
+	    console.log("LL",dict,prefix);
 	    var x = 1;
 	    var answer = [];
 	    console.log("E",document.getElementById(prefix+'-input-'+x));
 	    while(document.getElementById(prefix+'-input-'+x)){
 		var d = {}
 		d[x] = dict.values;
-		var to_push = process(d,prefix,process);
+		var to_push = instance.process(d,prefix,instance);
 		for(var idx in to_push){
 		    answer.push(to_push[idx]);
 		}
@@ -198,9 +198,9 @@ Pijemont.widgets = {
 	    
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    console.log("DD",dict, prefix);
-	    return process(dict.values, prefix, process);
+	    return instance.process(dict.values, prefix, instance);
 	}
     },
 
@@ -253,9 +253,9 @@ Pijemont.widgets = {
 	    
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    console.log("DD",dict, prefix);
-	    return process(dict.values, prefix, process);
+	    return instance.process(dict.values, prefix, instance);
 	}
     },
     
@@ -294,29 +294,36 @@ Pijemont.widgets = {
 	    inputs.getElementsByTagName("input")[0].click();
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
+	"process":function(dict, prefix, instance){
 	    for(var v in dict.values)
 		if(document.getElementById(prefix+'-oneof-'+v).checked){
 		    var d = {};
 		    d[v] = dict.values[v];
-		    return process(d,prefix,process);
+		    return instance.process(d,prefix,instance);
 		}
 	}
     },
     
     "file":{
 	"create":function(name, dict, prefix, instance){
+	    instance.files = instance.files || {};
 	    var new_node = Pijemont.make_node("div",{"class":"file_upload terminal"},"");
 	    var elt_name = prefix+'-'+name;
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    Pijemont.appendDescription(new_node, dict);
 	    var new_file = Pijemont.make_node("input",{"type":"file","id":elt_name},"");
+	    new_file.onchange = function(){
+		var reader = new FileReader();
+		reader.onload = function(e) {
+		    instance.files[elt_name] = e.target.result;
+		};
+		reader.readAsDataURL(new_file.files[0]);
+	    }
 	    new_node.appendChild(new_file);
 	    return new_node;
 	},
-	"process":function(dict, prefix, process){
-	    console.log(prefix,"ASDASDAS",document.getElementById(prefix),JSON.stringify(document.getElementById(prefix).files));
-	    return document.getElementById(prefix).files[0];
+	"process":function(dict, prefix, instance){
+	    return instance.files[prefix] ? instance.files[prefix] : "";
 	}
     },
 
