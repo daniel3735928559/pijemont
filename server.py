@@ -2,7 +2,7 @@ from flask import Flask, request
 import json
 app = Flask(__name__, static_url_path='/static')
 
-api = {
+api = {"initExp":{
     "targets":{
         "type":"oneof","values":{
             "n":{
@@ -60,7 +60,7 @@ api = {
     #     "type":"attrs","values":{"path":"the_form-algorithms",
     #                              "values":{"proportion":{"type":"num", "description":"This is a proportion."}}}
     # }
-}
+}}
 
 @app.route('/doc')
 def doc():

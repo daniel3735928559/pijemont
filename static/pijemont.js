@@ -1,4 +1,4 @@
-var Pijemont = function(container_form, api_dict, name, target){
+var Pijemont = function(container_form, api_dict, name, target, function_name){
     this.root = container_form;
     this.target = target;
     this.name = name;
@@ -29,7 +29,7 @@ var Pijemont = function(container_form, api_dict, name, target){
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
 	alert(event.target.responseText);
-	self.api = JSON.parse(event.target.responseText);
+	self.api = JSON.parse(event.target.responseText)[function_name];
 	self.append(self.root, self.api, self.name);	
     });
     XHR.addEventListener("error", function(event) {
