@@ -29,17 +29,17 @@ class Pijemont():
 
     def args_gen(self, api):
         if(api["type"] == "list"):
-            return "LIST["+self.args_gen(api['values'])+"]"
+            return "list["+self.args_gen(api['values'])+", ...]"
         elif(api["type"] == "dict"):
-            return "DICT{"+", ".join([self.args_gen(api['values'][k]) for k in api_values])+"}"
+            return "dict{"+", ".join([self.args_gen(api['values'][k]) for k in api_values])+"}"
         elif(api["type"] == "string" and "values" in api):
-            return "STRING(" + ", ".join(["\"" + k + "\"" for k in api["values"]]) + ")"
+            return "string(" + ", ".join(["\"" + k + "\"" for k in api["values"]]) + ")"
         if(api["type"] == "string" or api["type"] == "multiline"):
-           return "STRING"
+           return "string"
         elif(api["type"] == "num"):
-            return "NUM"
+            return "num"
         elif(api["type"] == "file"):
-            return "FILE"
+            return "file"
         elif(api["type"] == "oneof"):
             return " | ".join([self.args_gen(api['values'][k]) for k in api["values"]])
 

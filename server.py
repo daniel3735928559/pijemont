@@ -7,7 +7,8 @@ api = {"initExp":{
         "type":"oneof","values":{
             "n":{
                 "type":"num",
-                "description":"number of things"
+                "description":"number of things",
+                "set":4
             },
             
             "target_set":{
@@ -16,9 +17,11 @@ api = {"initExp":{
                 "values":{
                     "type":"string",
                     "description":"a text"
-                }
+                },
+                "set":["a","b","c"]
             }
-        }
+        },
+        "set":"n"
     },
 
     # "blah":{"type":"dict",
@@ -51,7 +54,7 @@ api = {"initExp":{
                   "values":["Alg A","Alg B","Alg C","Algae"]}
     },
 
-    "ASDA":{
+    "asda":{
         "type":"file",
         "description":"A list of algorithms"
     },
