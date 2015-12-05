@@ -51,6 +51,11 @@ input[type="radio"]{
 input[type="radio"]:checked{
     background-color:#fa3;
 }
+
+input[type="submit"]:checked{
+    padding:20px;
+    border-radius:10%;
+}
     
 div.add{
     cursor:pointer;
