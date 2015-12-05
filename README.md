@@ -98,3 +98,13 @@ the list at will.
 This will generate, for each key, the appropriate form for the
 corresponding type specifier dictionary.
 
+### `oneof`
+
+* `values`: Should be a dictionary whose keys are strings and whose values are type specifier dictionaries.  
+* `set`: A dictionary of objects whose keys are a subset of the keys in `values` and whose values are valid default values for the corresponding type specifiers.  May be omitted.
+
+This will generate, for each key, the appropriate form for the
+corresponding type specifier dictionary, and a radio button allowing
+the user to select which single one of the inputs they wish to
+provide.
+
