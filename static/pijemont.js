@@ -212,6 +212,11 @@ Pijemont.widgets = {
 	    Pijemont.append_description(new_node, dict);
 	    new_node.appendChild(inputs);
 	    console.log(dict);
+	    if(dict.set){
+		for(var v in dict.values){
+		    if(dict.set[v] && !dict.values[v].set) dict.values[v].set = dict.set[v];
+		}
+	    }
 	    instance.append(inputs,dict.values,elt_name);
 	    
 	    return new_node;
