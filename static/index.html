@@ -7,8 +7,8 @@
     <script type="text/javascript" src="pijemont.js"></script>
   </head>
   <body>
-    <form enctype="multipart/form-data" id="demo" method="post" target="#"></form>
+    <form enctype="multipart/form-data" id="demo"></form>
     <script>
-      var p = new Pijemont(document.getElementById("demo"), "/doc", "the_form", "/submit", "initExp");
+      var p = new Pijemont(document.getElementById("demo"), "/doc", "the_form", "/submit", function(val){ window.location = val; }, "initExp");
     </script>
 </body></html>

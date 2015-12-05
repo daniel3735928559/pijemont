@@ -1,7 +1,8 @@
-var Pijemont = function(container_form, api_dict, name, target, function_name){
+var Pijemont = function(container_form, api_dict, name, target, submit_callback, function_name){
     this.root = container_form;
     this.target = target;
     this.name = name;
+    this.submit_callback = submit_callback;
     var self = this;
 
     this.root.onsubmit = function(e){
@@ -13,14 +14,12 @@ var Pijemont = function(container_form, api_dict, name, target, function_name){
 	}
 	var data = self.process(self.api, self.name, self);
 	console.log(data);
-	alert(JSON.stringify(data));
 	var XHR = new XMLHttpRequest();
 	XHR.addEventListener("load", function(event) {
-	    alert(event.target.responseText);
-	    window.location = event.target.responseText;
+	    self.submit_callback(event.target.responseText);
 	});
 	XHR.addEventListener("error", function(event) {
-	    alert('Oops! Something went wrong.');
+	    console.log('Oops! Something went wrong.');
 	});
 	XHR.open("POST", self.target);
 	XHR.send(JSON.stringify(data));
@@ -28,13 +27,12 @@ var Pijemont = function(container_form, api_dict, name, target, function_name){
     
     var XHR = new XMLHttpRequest();
     XHR.addEventListener("load", function(event) {
-	alert(event.target.responseText);
 	self.api = JSON.parse(event.target.responseText)[function_name];
 	self.append(self.root, self.api, self.name);
 	self.root.appendChild(Pijemont.make_node("input",{"type":"submit"},""));
     });
     XHR.addEventListener("error", function(event) {
-	alert('Oops! Something went wrong.');
+	console.log('Oops! Something went wrong.');
     });
 
     if(typeof(api_dict)==='string'){
