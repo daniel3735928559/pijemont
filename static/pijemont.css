@@ -59,6 +59,8 @@ input[type="submit"]:checked{
     
 div.add{
     cursor:pointer;
+    margin:5px;
+    display:inline-block;
     width:50px;
     height:50px;
     border-radius:25px;
@@ -86,6 +88,20 @@ div.list_input > input{
 
 div.list_input > label{
     display:inline;
+}
+
+div.list_input{
+    width:90%;
+    display:inline-block;
+}
+
+span.list_remove:hover{
+    color:red;
+}
+
+span.list_remove{
+    cursor:pointer;
+    color:#999;
 }
 
 div.oneof_val{

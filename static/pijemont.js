@@ -147,10 +147,16 @@ Pijemont.widgets = {
 	    var elt_name = prefix+'-'+name;
 	    var inputs = Pijemont.make_node("div",{"class":"list_inputs"},"");
 	    var add_node = Pijemont.make_node ("div",{"class":"add"},"+");
+	    var remove_node = Pijemont.make_node ("div",{"class":"add"},"-");
 	    new_node.appendChild(Pijemont.make_node("label",{},name+": "));
 	    Pijemont.append_description(new_node, dict)
 	    new_node.appendChild(inputs);
 	    new_node.appendChild(add_node);
+	    new_node.appendChild(remove_node);
+	    var remove = function(){
+		var to_remove = document.getElementById(elt_name+'-input-'+inputs.childNodes.length);
+		to_remove.parentNode.removeChild(to_remove);
+	    }
 	    var append = function(val){
 		console.log("clicked");
 		var idx = (inputs.childNodes.length+1)+"";
@@ -174,6 +180,7 @@ Pijemont.widgets = {
 	    else
 		append();
 	    add_node.onclick = append;
+	    remove_node.onclick = remove;
 	    return new_node;
 	},
 
