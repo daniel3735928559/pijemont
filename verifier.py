@@ -4,23 +4,26 @@ import traceback
 import sys
 import os
 
+
 def load_doc(filename):
     with open(filename) as f:
         ref = yaml.load(f.read())
-    
-    ds = [load_doc(f) for f in ref.pop('extends',[])]
-    ref.pop('extends',None)
-    for d in ds:
-        ref = merge_dict(ref,d)
-
+        dir, _ = os.path.split(__file__)
+        ds = [load_doc(os.path.join(dir, ext)) for ext in ref.pop('extends',[])]
+        for d in ds:
+            ref = merge_dict(ref, d)
     return ref
 
-def merge_dict(d1,d2):
+def merge_dict(d1,d2,prefer=1):
     for k in d2:
         if k in d1:
-            d1[k] = merge_dict(d1[k],d2[k])
+            if type(d1[k]) == dict:
+                d1[k] = merge_dict(d1[k],d2[k])
+            if prefer == 2:
+                d1[k] = d2[k]
         else:
             d1[k] = d2[k]
+    return d1
     
 def verify(input_dict, reference_dict):
     """
@@ -38,9 +41,9 @@ def verify(input_dict, reference_dict):
         raise Exception("Failed to verify: {}".format(messages))
       else:
         return input_dict
-    except Exception, error:
+    except Exception:
       exc_type, exc_value, exc_traceback = sys.exc_info()
-      print "Exception: {} {}".format(error, traceback.format_exc())
+      print("Exception: {} {}".format(error, traceback.format_exc()))
       traceback.print_tb(exc_traceback)
       raise Exception(error)
 
@@ -66,7 +69,7 @@ def verify_helper(name, input_element, reference_dict):
                 for k in l2:
                     if 'default' in reference_dict['values'][k]:
                         input_element[k] = reference_dict['values'][k]['default']
-                        if reference_dict['values'][k]['type'] == 'num':
+                        if reference_dict['values'][k]['type'] in {'num','number'}:
                             input_element[k] = float(input_element[k])
                     elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
                         ans += [{"name":name+'/'+k, "message":"required key is absent"}]
@@ -84,15 +87,25 @@ def verify_helper(name, input_element, reference_dict):
                 input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'])
                 ans += temp_ans
 
-    elif reference_dict['type'] == 'boolean':
+    elif reference_dict['type'] == 'tuple':
+        if not isinstance(input_element, (list,tuple)):
+            ans += [{"name":name, "message":"invalid tuple"}]
+        else:
+            new_tuple = list(input_element)
+            for i in range(len(input_element)):
+                new_tuple[i], temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'][i])
+                ans += temp_ans
+            new_tuple = tuple(new_tuple)
+
+    elif reference_dict['type'] in {'bool','boolean'}:
         if not isinstance(input_element, (bool)):
             ans += [{"name":name, "message":"invalid boolean"}]
 
-    elif reference_dict['type'] == 'num':
+    elif reference_dict['type'] in {'num','number'}:
         if not isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
-    elif reference_dict['type'] == 'str' or reference_dict['type'] == 'multiline':
+    elif reference_dict['type'] in {'str','string','multiline'}:
         if not isinstance(input_element, (str, unicode)):
             ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
@@ -111,8 +124,11 @@ def verify_helper(name, input_element, reference_dict):
             else:
                 ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
 
-    else:
+    elif reference_dict['type'] in {'any', 'stuff'}:
         pass
+
+    else:
+        ans += [{"name":name, "message":"invalid type: {}".format(reference_dict['type'])}]  
 
     return input_element,ans
 
