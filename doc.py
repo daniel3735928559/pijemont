@@ -30,7 +30,7 @@ def args_summary(api):
         return api["type"]
 
 def args_gen(api, depth):
-    print(api)
+    print(api,api['type'])
     indent = "   "*depth
     if(api["type"] == "list"):
         return "List, all of whose elements are as follows:  \n{indent}  * {elements}\n".format(indent=indent, elements=args_gen(api['values'], depth+2))
@@ -44,6 +44,7 @@ def args_gen(api, depth):
                                                                     for k in api['values']]))
                                 
     elif(api["type"] == "tuple"):
+        print("A",api)
         return "Tuple with the following values:\n{values}\n{indent}".format(
             indent=indent,
             keys="\n".join(["{indent}`{key}`:{value}  {desc}".format(indent=indent + "* ",

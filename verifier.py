@@ -4,15 +4,31 @@ import traceback
 import sys
 import os
 
+DICT = {'dict','dictionary','map'}
+LIST = {'list'}
+TUPLE = {'tuple'}
+ONEOF = {'oneof'}
+
+NUM = {'num','number','float'}
+STRING = {'str','string','multiline'}
+ANY = {'any','stuff'}
+FILE = {'file'}
+BOOL = {'boolean','bool'}
 
 def load_doc(filename):
+    errs = []
     with open(filename) as f:
         ref = yaml.load(f.read())
         dir, _ = os.path.split(__file__)
-        ds = [load_doc(os.path.join(dir, ext)) for ext in ref.pop('extends',[])]
+        ds = []
+        for ext in ref.pop('extends',[]):
+            r,e = load_doc(os.path.join(dir, ext))
+            ds += [r]
+            errs += e
         for d in ds:
             ref = merge_dict(ref, d)
-    return ref
+    errs = check_format(ref,'args' in ref[list(ref.keys())[0]])
+    return ref,errs
 
 def merge_dict(d1,d2,prefer=1):
     for k in d2:
@@ -24,7 +40,59 @@ def merge_dict(d1,d2,prefer=1):
         else:
             d1[k] = d2[k]
     return d1
+
+def check_format(doc,rets=True):
+    errs = []
+    if rets:
+        for x in doc:
+            if 'args' in doc[x]:
+                errs += check_format_helper({'type':'dict','values':doc[x]['args']},'args/'+x)
+            if 'rets' in doc[x]:
+                errs += check_format_helper({'type':'dict','values':doc[x]['rets']},'rets/'+x)
+    else:
+        for x in doc:
+            errs += check_format_helper(doc[x],x)
+    return errs
+
+def check_format_helper(doc,name):
+    errs = []
     
+    if not 'type' in doc:
+        errs += ['{}: "type" key missing'.format(name)]
+    
+    diff = set(doc.keys()) - {'type','description','values','optional','default'}
+    if len(diff) > 0:
+        errs += ["{}: extra keys in spec: {}".format(name,", ".join(list(diff)))]
+    
+    if not doc['type'] in DICT | LIST | TUPLE | ONEOF | NUM | STRING | BOOL | ANY | FILE:
+        errs += ['{}: invlid type: {}'.format(name, doc['type'])]
+    
+    if doc['type'] in DICT | LIST | TUPLE | ONEOF and not 'values' in doc:
+        errs += ['{}: requires "values" key'.format(name)]
+
+    if len(errs) > 0:
+        return errs
+    
+    if doc['type'] in DICT:
+        for x in doc['values']:
+            errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,x))
+    
+    elif doc['type'] in LIST:
+        errs += check_format_helper(doc['values'],'{}/values'.format(name))
+        
+    elif doc['type'] in TUPLE:
+        for x in doc['values']:
+            errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,str(x)))
+            
+    elif doc['type'] in ONEOF:
+        for x in doc['values']:
+            errs += check_format_helper(doc['values'][x],'{}/{}'.format(name,str(x)))
+            
+    return errs
+        
+    
+    
+
 def verify(input_dict, reference_dict):
     """
     Returns: modified_input, success, list_of_errors
@@ -57,7 +125,7 @@ def verify_helper(name, input_element, reference_dict):
     - list_of_errors is: [{name: name, message: ...}, ...]
     """
     ans = []
-    if reference_dict['type'] == 'dict':
+    if reference_dict['type'] in DICT:
         if not isinstance(input_element, (dict)):
             ans += [{"name":name, "message":"invalid dict"}]
         else:
@@ -69,7 +137,7 @@ def verify_helper(name, input_element, reference_dict):
                 for k in l2:
                     if 'default' in reference_dict['values'][k]:
                         input_element[k] = reference_dict['values'][k]['default']
-                        if reference_dict['values'][k]['type'] in {'num','number'}:
+                        if reference_dict['values'][k]['type'] in NUM:
                             input_element[k] = float(input_element[k])
                     elif (not 'optional' in reference_dict['values'][k]) or reference_dict['values'][k]['optional'] == False:
                         ans += [{"name":name+'/'+k, "message":"required key is absent"}]
@@ -79,7 +147,7 @@ def verify_helper(name, input_element, reference_dict):
                         input_element[k], temp_ans = verify_helper(name + '/' + k, input_element[k], reference_dict['values'][str(k)])
                         ans += temp_ans
 
-    elif reference_dict['type'] == 'list':
+    elif reference_dict['type'] in LIST:
         if not isinstance(input_element, (list)):
             ans += [{"name":name, "message":"invalid list"}]
         else:
@@ -87,7 +155,7 @@ def verify_helper(name, input_element, reference_dict):
                 input_element[i],temp_ans = verify_helper(name+'/'+str(i), input_element[i], reference_dict['values'])
                 ans += temp_ans
 
-    elif reference_dict['type'] == 'tuple':
+    elif reference_dict['type'] in TUPLE:
         if not isinstance(input_element, (list,tuple)):
             ans += [{"name":name, "message":"invalid tuple"}]
         else:
@@ -97,21 +165,21 @@ def verify_helper(name, input_element, reference_dict):
                 ans += temp_ans
             new_tuple = tuple(new_tuple)
 
-    elif reference_dict['type'] in {'bool','boolean'}:
+    elif reference_dict['type'] in BOOL:
         if not isinstance(input_element, (bool)):
             ans += [{"name":name, "message":"invalid boolean"}]
 
-    elif reference_dict['type'] in {'num','number'}:
+    elif reference_dict['type'] in NUM:
         if not isinstance(input_element, (int, long, float)):
             ans += [{"name":name, "message":"invalid number"}]
 
-    elif reference_dict['type'] in {'str','string','multiline'}:
+    elif reference_dict['type'] in STRING:
         if not isinstance(input_element, (str, unicode)):
             ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
 
-    elif reference_dict['type'] == 'oneof':
+    elif reference_dict['type'] in ONEOF:
         count = 0
         for k in reference_dict['values']:
             if k in input_element:
@@ -124,7 +192,7 @@ def verify_helper(name, input_element, reference_dict):
             else:
                 ans += [{"name":name, "message":"no argument provided for 'oneof' arg"}]
 
-    elif reference_dict['type'] in {'any', 'stuff'}:
+    elif reference_dict['type'] in ANY | FILE:
         pass
 
     else:
@@ -137,3 +205,14 @@ def compare_dict_keys(d1, d2):
     Returns [things in d1 not in d2, things in d2 not in d1]
     """
     return [k for k in d1 if not k in d2], [k for k in d2 if not k in d1]
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        r,e = load_doc(sys.argv[1])
+        print('doc',r)
+        print('errs',e)
+        if len(sys.argv) > 2:
+            i,e = verify(sys.argv[2],r)
+            print("Errors",e)
+            print("Verified input",i)
+    
