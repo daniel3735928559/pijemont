@@ -10,7 +10,7 @@ def print_docs_yaml(filename):
 #     print(doc_gen(api))
     
 def doc_gen(api):
-    return "\n\n".join(["###`{func}({shortargs}) : {shortrets}`\n\n{desc}\n\n####Arguments:\n{longargs}\n\n####Returns:\n{longrets}".format(
+    return "\n\n".join(["### `{func}({shortargs}) : {shortrets}`\n\n{desc}\n\n#### Arguments:\n{longargs}\n\n#### Returns:\n{longrets}".format(
         func=f,
         shortargs=", ".join(["" + k for k in (api[f]['args'] if 'args' in api[f] else {})]),
         shortrets=args_summary(api[f]['returns']) if 'returns' in api[f] else "None",
