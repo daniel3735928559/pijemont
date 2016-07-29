@@ -1,73 +1,25 @@
-from flask import Flask, request
-import json
+from flask import Flask, request, render_template
+import json, sys, verifier
+import doc as doc_gen
 app = Flask(__name__, static_url_path='/static')
 
-api = {"initExp":{
-    "targets":{
-        "type":"oneof","values":{
-            "n":{
-                "type":"num",
-                "description":"number of things",
-                "set":4
-            },
-            
-            "target_set":{
-                "type":"list",
-                "description":"number of things",
-                "values":{
-                    "type":"string",
-                    "description":"a text"
-                },
-                "set":["a","b","c"]
-            }
-        },
-        "set":"n"
-    },
+@app.route('/doc/<string:form>')
+def doc(form="raw"):
+    api,blank,pretty = doc_gen.get_docs('example.yaml','.')
+       
+    if form == "pretty":
+       return render_template('doc.html',doc_string=pretty, base_dir="/static")
+    elif form == "blank":
+       return render_template('raw.html',doc=blank)
+    elif form == "raw":
+       return render_template('raw.html',doc=api)
 
-    # "blah":{"type":"dict",
-    #         "description":"blah",
-    #         "values":{"thing1":{"type":"list",
-    #                             "values":{"type":"string"}},
-    #                   "thing2":{"type":"num"}}},
-
-    # "debrief":{"type":"multiline",
-    #            "description":"Text to display when things happen"},
-
-    "names":{
-        "type":"list",
-        "description":"Names",
-        "values":{
-            "type":"list",
-            "description":"asda",
-            "values":{
-                "type":"string",
-                "description":"I'm a string",
-                "values":["Alice","Bob"]
-            }
-        }
-    },
-
-    "algorithms":{
-        "type":"list",
-        "description":"A list of algorithms",
-        "values":{"type":"string",
-                  "values":["Alg A","Alg B","Alg C","Algae"]}
-    },
-
-    "asda":{
-        "type":"file",
-        "description":"A list of algorithms"
-    },
-
-    # "alg_attrs":{
-    #     "type":"attrs","values":{"path":"the_form-algorithms",
-    #                              "values":{"proportion":{"type":"num", "description":"This is a proportion."}}}
-    # }
-}}
-
-@app.route('/doc')
-def doc():
     return json.dumps(api)
+
+@app.route('/form/<string:fn>')
+def form(fn="excite"):
+    api,_ = verifier.load_doc('example.yaml','.')
+    return render_template('form.html',api_doc=api, submit="/submit", function_name=fn, base_dir="/static")    
 
 @app.route('/submit', methods=["POST"])
 def submit():
@@ -75,4 +27,4 @@ def submit():
     return "done"
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=3797, debug=True)
+    app.run(host='0.0.0.0',port=int(sys.argv[1]), debug=True)

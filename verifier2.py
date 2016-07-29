@@ -108,11 +108,11 @@ def verify(input_dict, reference_dict):
         raise Exception("Failed to verify: {}".format(messages))
       else:
         return input_dict
-    except Exception as error:
+    except Exception, error:
       exc_type, exc_value, exc_traceback = sys.exc_info()
       print("Exception: {} {}".format(error, traceback.format_exc()))
       traceback.print_tb(exc_traceback)
-      raise Exception(error.args[0])
+      raise Exception(error)
 
 def verify_helper(name, input_element, reference_dict):
     """
