@@ -10,25 +10,29 @@ The following command will print sys.stdout
 
 """
 
-import json, sys, yaml
+import json, sys, yaml, os
+from pprint import pprint
 sys.path.append('..')
 from pijemont import verifier
 
 
 def run_test(test_name):
-    with open('tests/{}.yaml'.format(test_name)) as f:
+    with open('tests/test_files/{}'.format(test_name)) as f:
         test = yaml.load(f.read())
     api, errs = verifier.load_doc(test['spec'], 'tests/specs/')
     for x in test['inputs']:
         fn = test['inputs'][x]['function']
         args = test['inputs'][x]['args']
-        out = verifier.verify(args, api[fn]['args'])
-        assert out == args
+        verifier.verify(args, api[fn]['args'])
+
+        expected_out = test['inputs'][x]['verified']
+
+        assert expected_out == args
 
 
 def test_all():
     print('\n')
-    for yaml_filename in ['basic', 'optional', 'string_num',
-                          'overwrite_optional']:
+    dir_ = 'tests/test_files/'
+    for yaml_filename in os.listdir(dir_):
         print('Testing YAML file {}'.format(yaml_filename))
         run_test(yaml_filename)

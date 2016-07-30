@@ -6,7 +6,8 @@ inputs:
     function: contact
     args:
       name: Scott
-      phone_number: 651
-      email: scott@gmail.com
+      phone_number: "651"
     verified:
-      str: Hello
+      name: Scott
+      phone_number: 651.0
+      email: junk@gmail.com
