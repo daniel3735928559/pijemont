@@ -1,0 +1,10 @@
+test:
+  args:
+    thing:
+      type: number
+      values: "> 1 & < 5"
+test2:
+  args:
+    thing:
+      type: number
+      values: "(> 1.1 & <= 5 ) | >= 100"
