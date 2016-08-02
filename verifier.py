@@ -3,6 +3,7 @@ import random
 import traceback
 import sys
 import os
+from condition import condition_parser
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}
@@ -169,14 +170,23 @@ def verify_helper(name, input_element, reference_dict):
             ans += [{"name":name, "message":"invalid boolean"}]
 
     elif reference_dict['type'] in NUM:
+        ok = True
         if not isinstance(input_element, (int, float)):
             if isinstance(input_element, (str)):
                 try:
                     input_element = float(input_element)
                 except:
                     ans += [{"name":name, "message":"invalid number"}]
+                    ok = False
             else:
                 ans += [{"name":name, "message":"invalid number"}]
+                ok = False
+        if ok:
+            if 'values' in reference_dict:
+                try:
+                    condition_parser().parse("{} {}".format(str(input_element),str(reference_dict['values'])))
+                except Exception as exc:
+                    ans += [{"name":name, "message":str(exc)}]
 
     elif reference_dict['type'] in STRING:
         if not isinstance(input_element, (str)):

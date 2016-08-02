@@ -26,10 +26,9 @@ def verify_yaml(test_name, test):
     api, errs = verifier.load_doc(test['spec'], 'tests/specs/')
     fn = test['inputs'][test_name]['function']
     args = test['inputs'][test_name]['args']
-    verifier.verify(args, api[fn]['args'])
-
+    verified = verifier.verify(args, api[fn]['args'])
     expected_out = test['inputs'][test_name]['verified']
-    return args, expected_out
+    return verified, expected_out
 
 
 def run_test(filename):
@@ -46,8 +45,12 @@ def run_test(filename):
             for exception in test['load_errors']:
                 assert_raises(eval(exception), verify_yaml, test)
         else:
-            args, expected_out = verify_yaml(test_name, test)
-            assert expected_out == args
+            try:
+                args, expected_out = verify_yaml(test_name, test)
+                assert expected_out == args
+                assert (not 'errors' in test['inputs'][test_name]) or test['inputs'][test_name]['errors'] == False
+            except:
+                assert 'errors' in test['inputs'][test_name] and test['inputs'][test_name]['errors'] == True
 
 
 def test_all():
@@ -61,3 +64,6 @@ def test_all():
             continue
         print('Testing YAML file {}'.format(yaml_filename))
         run_test(yaml_filename)
+
+if __name__ == "__main__":
+    test_all()
