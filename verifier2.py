@@ -63,7 +63,10 @@ def check_format_helper(doc,name):
     diff = set(doc.keys()) - {'type','description','values','optional','default'}
     if len(diff) > 0:
         errs += ["{}: extra keys in spec: {}".format(name,", ".join(list(diff)))]
-    
+
+    if not 'type' in doc or not 'values' in doc:
+        return errs
+        
     if not doc['type'] in DICT | LIST | TUPLE | ONEOF | NUM | STRING | BOOL | ANY | FILE:
         errs += ['{}: invlid type: {}'.format(name, doc['type'])]
     
@@ -189,7 +192,7 @@ def verify_helper(name, input_element, reference_dict):
                     ans += [{"name":name, "message":str(exc)}]
 
     elif reference_dict['type'] in STRING:
-        if not isinstance(input_element, (str)):
+        if not isinstance(input_element, (str, unicode)):
             ans += [{"name":name, "message":"expected a string, got {}".format(type(input_element))}]
         elif 'values' in reference_dict and not input_element in reference_dict['values']:
             ans += [{"name":name, "message":"argument must be one of the specified strings: "+", ".join(reference_dict['values'])}]
