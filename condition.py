@@ -65,13 +65,15 @@ class condition_parser:
         'expr : LPAREN expr RPAREN'
         t[0] = t[2]
 
-    def p_expr_binop(self, t):
+    def p_expr_op(self, t):
         '''expr : expr OR expr
-        | expr AND expr'''
-        if t[2] == '&'  : t[0] = t[1] and t[3]
+        | expr AND expr
+        | NOT expr'''
+        if t[1] == '!': t[0] = not t[2]
+        elif t[2] == '&': t[0] = t[1] and t[3]
         elif t[2] == '|': t[0] = t[1] or t[3]
 
-    def p_expr_unop(self, t):
+    def p_expr(self, t):
         '''expr : GT NUMBER
         | LT NUMBER
         | GT EQ NUMBER

@@ -3,7 +3,7 @@ import random
 import traceback
 import sys
 import os
-from condition import condition_parser
+from .condition import condition_parser
 
 DICT = {'dict','dictionary','map'}
 LIST = {'list'}

@@ -1,4 +1,4 @@
-test:
+test1:
   args:
     thing:
       type: number
@@ -8,3 +8,8 @@ test2:
     thing:
       type: number
       values: "(> 1.1 & <= 5 ) | >= 100"
+test3:
+  args:
+    thing:
+      type: number
+      values: "! (> -3.14 & <= 3.14 ) & ! >= 100"
