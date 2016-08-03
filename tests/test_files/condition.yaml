@@ -26,14 +26,26 @@ inputs:
       thing: 4999999
     verified:
       thing: 4999999
-  condition_pass4:
+  condition_pass5:
     function: test3
     args:
       thing: -3.14
     verified:
       thing: -3.14
-  condition_pass5:
+  condition_pass6:
     function: test3
+    args:
+      thing: 99
+    verified:
+      thing: 99
+  condition_pass7:
+    function: test4
+    args:
+      thing: -3.14
+    verified:
+      thing: -3.14
+  condition_pass8:
+    function: test4
     args:
       thing: 99
     verified:
@@ -65,6 +77,16 @@ inputs:
     errors: true
   condition_fail6:
     function: test3
+    args:
+      thing: 3.14
+    errors: true
+  condition_fail7:
+    function: test4
+    args:
+      thing: 100
+    errors: true
+  condition_fail8:
+    function: test4
     args:
       thing: 3.14
     errors: true

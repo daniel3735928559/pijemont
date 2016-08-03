@@ -78,7 +78,13 @@ describe in each case when we specify the types below.
 
 #### Notes on type specifier keys:
 
-* `values`: May be a specification of conditions that the numbers must satisfy, such as `[">= 2", "< 3", "== 4"]`
+* `values`: May be a specification of conditions that the numbers must
+  satisfy, such as `values: "(>2 & <3) | <=-1 | (>100 & !=108.6)"` to
+  say that the number must satisfy one of the conditions "between 2
+  and 3", "at most -1", and "bigger than 100 but not equal to 108.6".
+  All symbols can be replaced with letter versions, `gt` for `>`, etc,
+  so this condition could equally have been expressed:
+  `values: "(gt 2 and lt 3) or lteq -1 or (gt 100 and noteq 108.6)"`.
 
 #### HTML form
 

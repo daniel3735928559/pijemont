@@ -7,12 +7,12 @@ class condition_lexer:
 
     tokens = ('LT', 'GT', 'EQ', 'AND', 'OR', 'NOT', 'NUMBER', 'LPAREN','RPAREN')
 
-    t_LT    = r'<'
-    t_GT    = r'>'
-    t_EQ    = r'='
-    t_AND    = r'&'
-    t_OR    = r'\|'
-    t_NOT    = r'!'
+    t_LT    = r'<|lt'
+    t_GT    = r'>|gt'
+    t_EQ    = r'=|eq'
+    t_AND    = r'&|and'
+    t_OR    = r'\||or'
+    t_NOT    = r'!|not'
     t_LPAREN    = r'\('
     t_RPAREN    = r'\)'
     
